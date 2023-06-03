@@ -1,16 +1,121 @@
 <!DOCTYPE html>
-
 <html>
 
 <head>
-	<link rel="stylesheet" href="styles.css">
+  <meta charset="utf-8">
+  <title>Random User App</title>
+  <style>
+    .user-info {
+      text-align: center;
+      padding: 20px;
+    }
+
+    .user-info img {
+      width: 150px;
+      border-radius: 50%;
+      margin-bottom: 10px;
+    }
+
+    .additional-info {
+      margin-top: 20px;
+    }
+
+    .additional-info button {
+      margin-right: 10px;
+    }
+
+    .additional-info p {
+      display: none;
+    }
+  </style>
 </head>
 
 <body>
-	<!-- the entire body must be written by student -->
-    <script type="text/javascript" src="./script.js">
-</script>
+  <div class="user-info">
+    <img id="userPhoto" src="" alt="User Photo">
+    <h2 id="userName"></h2>
+  </div>
 
+  <div class="additional-info">
+    <button data-attr="age">Age</button>
+    <button data-attr="email">Email</button>
+    <button data-attr="phone">Phone</button>
+  </div>
+
+  <div class="additional-info">
+    <p id="ageInfo"></p>
+    <p id="emailInfo"></p>
+    <p id="phoneInfo"></p>
+  </div>
+
+  <button id="getUser">Get User</button>
+
+  <script>
+    const getUserButton = document.getElementById('getUser');
+    const userNameElement = document.getElementById('userName');
+    const userPhotoElement = document.getElementById('userPhoto');
+    const ageInfoElement = document.getElementById('ageInfo');
+    const emailInfoElement = document.getElementById('emailInfo');
+    const phoneInfoElement = document.getElementById('phoneInfo');
+
+    getUserButton.addEventListener('click', getUser);
+
+    function getUser() {
+      fetch('https://randomuser.me/api/')
+        .then(response => response.json())
+        .then(data => {
+          const user = data.results[0];
+          const { name, picture, dob, email, phone } = user;
+          const { first, last } = name;
+
+          userNameElement.textContent = `${first} ${last}`;
+          userPhotoElement.src = picture.large;
+
+          resetAdditionalInfo();
+
+          // Save additional user info to respective elements
+          ageInfoElement.textContent = `Age: ${calculateAge(dob)}`;
+          emailInfoElement.textContent = `Email: ${email}`;
+          phoneInfoElement.textContent = `Phone: ${phone}`;
+        });
+    }
+
+    function resetAdditionalInfo() {
+      ageInfoElement.textContent = '';
+      emailInfoElement.textContent = '';
+      phoneInfoElement.textContent = '';
+    }
+
+    function calculateAge(dob) {
+      const birthDate = new Date(dob.date);
+      const currentDate = new Date();
+      const age = currentDate.getFullYear() - birthDate.getFullYear();
+      return age;
+    }
+
+    const additionalInfoButtons = document.querySelectorAll('.additional-info button');
+
+    additionalInfoButtons.forEach(button => {
+      button.addEventListener('click', displayAdditionalInfo);
+    });
+
+    function displayAdditionalInfo(event) {
+      const dataAttr = event.target.getAttribute('data-attr');
+
+      resetAdditionalInfo();
+
+      if (dataAttr === 'age') {
+        ageInfoElement.style.display = 'block';
+      } else if (dataAttr === 'email') {
+        emailInfoElement.style.display = 'block';
+      } else if (dataAttr === 'phone') {
+        phoneInfoElement.style.display = 'block';
+      }
+    }
+
+    // Initial call to get the first user
+    getUser();
+  </script>
 </body>
 
 </html>
